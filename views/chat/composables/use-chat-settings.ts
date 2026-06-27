@@ -20,7 +20,6 @@ type ChatThinkingValue = AIChatComposerParams['thinking'];
 type ChatWebSearchType = NonNullable<AIChatComposerParams['web_search']>;
 interface ChatSessionScopedConfig {
   enableBuiltinTools: boolean;
-  text2sqlDatasetId: number | undefined;
   generationType: ChatGenerationType;
   modelId?: string;
   parallelToolCalls: boolean;
@@ -35,7 +34,6 @@ const DEFAULT_CHAT_SESSION_SCOPED_CONFIG: Omit<
   'modelId' | 'providerId'
 > = {
   enableBuiltinTools: true,
-  text2sqlDatasetId: undefined,
   generationType: 'text',
   parallelToolCalls: true,
   selectedMcpIds: [],
@@ -130,7 +128,6 @@ export function useChatSettings(options: UseChatSettingsOptions) {
   const parallelToolCalls = ref(true);
   const thinking = ref<ChatThinkingValue>(undefined);
   const enableBuiltinTools = ref(true);
-  const text2sqlDatasetId = ref<number | undefined>();
   const selectedMcpIds = ref<number[]>([]);
   const webSearch = ref<ChatWebSearchType>('off');
   const stopSequences = ref('');
@@ -191,7 +188,6 @@ export function useChatSettings(options: UseChatSettingsOptions) {
   function buildCurrentChatSessionScopedConfig(): ChatSessionScopedConfig {
     return {
       enableBuiltinTools: enableBuiltinTools.value,
-      text2sqlDatasetId: text2sqlDatasetId.value,
       generationType: generationType.value,
       modelId: selectedModelId.value,
       parallelToolCalls: parallelToolCalls.value,
@@ -225,8 +221,6 @@ export function useChatSettings(options: UseChatSettingsOptions) {
     selectedMcpIds.value = [...(config.selectedMcpIds ?? [])];
     webSearch.value =
       config.webSearch ?? DEFAULT_CHAT_SESSION_SCOPED_CONFIG.webSearch;
-    text2sqlDatasetId.value =
-      config.text2sqlDatasetId ?? DEFAULT_CHAT_SESSION_SCOPED_CONFIG.text2sqlDatasetId;
   }
 
   function rememberConversationSessionConfig(conversationId?: null | string) {
@@ -362,7 +356,6 @@ export function useChatSettings(options: UseChatSettingsOptions) {
     WEB_SEARCH_OPTIONS,
     conversationSessionConfigs,
     enableBuiltinTools,
-    text2sqlDatasetId,
     extraBody,
     extraHeaders,
     frequencyPenalty,

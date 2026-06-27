@@ -11,7 +11,6 @@ import type {
   AIModelResult,
   AIProviderResult,
   AIQuickPhraseResult,
-  Text2SqlDatasetEnabled,
 } from '../../api';
 import type {
   AIChatComposerParams,
@@ -49,7 +48,6 @@ import {
   getAllAIModelApi,
   getAllAIProviderApi,
   getAllAIQuickPhraseApi,
-  getEnabledDatasetsApi,
 } from '../../api';
 import {
   buildChatCompletionRequest,
@@ -97,7 +95,6 @@ const regeneratingMessageIndex = ref<number>();
 const providers = ref<AIProviderResult[]>([]);
 const models = ref<AIModelResult[]>([]);
 const mcps = ref<AIMcpResult[]>([]);
-const datasets = ref<Text2SqlDatasetEnabled[]>([]);
 const quickPhrases = ref<AIQuickPhraseResult[]>([]);
 
 const resourcesLoading = ref(false);
@@ -191,7 +188,6 @@ const {
   THINKING_OPTIONS,
   WEB_SEARCH_OPTIONS,
   enableBuiltinTools,
-  text2sqlDatasetId,
   extraBody,
   extraHeaders,
   frequencyPenalty,
@@ -275,10 +271,6 @@ async function fetchMcps() {
   mcps.value = await getAllAIMcpApi();
 }
 
-async function fetchDatasets() {
-  datasets.value = await getEnabledDatasetsApi();
-}
-
 async function fetchModelsByProvider(providerId?: number) {
   const fetchId = ++currentModelFetchId;
 
@@ -312,7 +304,6 @@ async function refreshChatResources() {
     fetchProviders(),
     fetchModelsByProvider(selectedProviderId.value),
     fetchMcps(),
-    fetchDatasets(),
     fetchQuickPhrases(),
   ]);
 }
@@ -553,7 +544,6 @@ async function submitChat(
       conversation_id: activeConversationId.value,
       extra_body: extraBody.value.trim() || undefined,
       enable_builtin_tools: enableBuiltinTools.value,
-      text2sql_dataset_id: text2sqlDatasetId.value ?? undefined,
       extra_headers: parseJsonField<Record<string, string>>(
         extraHeaders.value,
         '额外请求头',
@@ -1101,9 +1091,7 @@ const { fetchQuickPhrases: fetchQuickPhrasesFromToolbar, renderSenderFooter } =
     confirmClearConversationContext,
     confirmClearMessages,
     createNewConversation,
-    datasets,
     enableBuiltinTools,
-    text2sqlDatasetId,
     generationType,
     generationTypeButtonLabel,
     GENERATION_TYPE_OPTIONS,
@@ -1180,7 +1168,6 @@ onMounted(async () => {
   await fetchProviders();
   await applyAssistantDefaultModel({ force: true });
   await fetchMcps();
-  await fetchDatasets();
   await fetchQuickPhrasesFromToolbar();
   await initializeSession();
 

@@ -6,10 +6,9 @@ import type {
   AIChatComposerParams,
   AIMcpResult,
   AIQuickPhraseResult,
-  Text2SqlDatasetEnabled,
 } from '../../../api';
 
-import { computed, h, ref, resolveComponent } from 'vue';
+import { h, ref, resolveComponent } from 'vue';
 
 import { IconifyIcon } from '@vben/icons';
 
@@ -31,9 +30,7 @@ export interface UseSenderToolbarOptions {
   confirmClearConversationContext: () => void;
   confirmClearMessages: () => void;
   createNewConversation: () => void;
-  datasets: Ref<Text2SqlDatasetEnabled[]>;
   enableBuiltinTools: Ref<boolean>;
-  text2sqlDatasetId: Ref<number | undefined>;
   generationType: Ref<string>;
   generationTypeButtonLabel: Ref<string>;
   GENERATION_TYPE_OPTIONS: Array<{
@@ -78,8 +75,6 @@ export function useSenderToolbar(options: UseSenderToolbarOptions) {
     confirmClearConversationContext,
     confirmClearMessages,
     createNewConversation,
-    datasets,
-    text2sqlDatasetId,
     generationType,
     generationTypeButtonLabel,
     GENERATION_TYPE_OPTIONS,
@@ -369,37 +364,6 @@ export function useSenderToolbar(options: UseSenderToolbarOptions) {
     });
   }
 
-  const text2sqlDatasetLabel = computed(() => {
-    if (text2sqlDatasetId.value === undefined) {
-      return datasets.value.length === 0 ? '无数据集' : '关闭';
-    }
-    return (
-      datasets.value.find((item) => item.id === text2sqlDatasetId.value)?.name ||
-      'Text2SQL'
-    );
-  });
-
-  function renderText2SqlPopoverContent() {
-    const items: SenderToolbarOption[] = [
-      { desc: '不启用 Text2SQL 取数', key: 'off', label: '关闭' },
-      ...datasets.value.map((item) => ({
-        desc: item.description ?? undefined,
-        key: String(item.id),
-        label: item.name,
-      })),
-    ];
-    return renderSelectableOptionsContent({
-      activeKey:
-        text2sqlDatasetId.value === undefined
-          ? 'off'
-          : String(text2sqlDatasetId.value),
-      items,
-      onSelect: (key) => {
-        text2sqlDatasetId.value = key === 'off' ? undefined : Number(key);
-      },
-    });
-  }
-
   function getMcpDescription(item: AIMcpResult) {
     return item.description || item.command || item.url || `MCP #${item.id}`;
   }
@@ -523,26 +487,6 @@ export function useSenderToolbar(options: UseSenderToolbarOptions) {
                         disabled: sending.value,
                         icon: 'mdi:web',
                         title: `联网搜索：${webSearchButtonLabel.value}`,
-                      }),
-                  },
-                ),
-                h(
-                  aPopover,
-                  { placement: 'topLeft', title: 'Text2SQL 数据集', trigger: 'click' },
-                  {
-                    content: () => renderText2SqlPopoverContent(),
-                    default: () =>
-                      renderFooterIconButton({
-                        active: text2sqlDatasetId.value !== undefined,
-                        disabled:
-                          sending.value ||
-                          generationType.value === 'image' ||
-                          datasets.value.length === 0,
-                        icon:
-                          text2sqlDatasetId.value !== undefined
-                            ? 'mdi:database-search'
-                            : 'mdi:database-search-outline',
-                        title: `Text2SQL：${text2sqlDatasetLabel.value}`,
                       }),
                   },
                 ),

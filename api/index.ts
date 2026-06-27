@@ -341,19 +341,4 @@ export async function deleteAIQuickPhraseApi(pk: number) {
   return requestClient.delete<AIActionResult>(`/api/v1/quick-phrases/${pk}`);
 }
 
-// ---------------- Text2SQL（chat 数据集选择器）----------------
-// 完整的数据集/数据源/样例管理 API 已拆到 text2sql_ui 插件；
-// ai 仅保留 chat 选择器所需的「启用数据集」读取，避免 ai_ui 反向依赖 text2sql_ui。
-export interface Text2SqlDatasetEnabled {
-  description?: null | string;
-  id: number;
-  name: string;
-}
-
-export async function getEnabledDatasetsApi() {
-  return requestClient.get<Text2SqlDatasetEnabled[]>(
-    '/api/v1/text2sql/datasets/enabled',
-  );
-}
-
 export * from './chat';
